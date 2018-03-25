@@ -79,7 +79,7 @@ void loop(void)
             client.println("<code class=\"lead\">HTTP Server running at http://"+ipStr+" has served "+visitCounter+" requests during this lifetime</code>");
             client.println("<br />");
             client.println("<br />");
-            client.println("<a class=\"btn btn-primary btn-lg\" href=\".\" role=\"button\">Reload »</a>");            
+            client.println("<a class=\"btn btn-primary btn-lg\" href=\".\" role=\"button\">Reload</a>");            
             client.println("</div>");
             client.println("</div>");
             client.println("</body>");
