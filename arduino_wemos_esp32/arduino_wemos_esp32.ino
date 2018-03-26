@@ -7,14 +7,15 @@
 #include <Wire.h>
 #include "SSD1306Wire.h"
 #include "OLEDDisplayUi.h"
+#include "IPAddressHelper.h"
 
-const char* ssid = "...";
-const char* password = "...";
+const char* ssid = "orchcamp";
+const char* password = "greenskins";
 int visitCounter = 0;
 
 // TCP server at port 80 will respond to HTTP requests
 WiFiServer server(80);
- 
+
 uint64_t chipid;
 String chipid_hex;
 
@@ -31,9 +32,9 @@ void msOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
 }
 
 void loop(void)
-{ 
+{
   drawScreen();
-  
+
   WiFiClient client = server.available();   // listen for incoming clients
 
   if (client) {                             // if you get a client,
@@ -43,7 +44,7 @@ void loop(void)
       if (client.available()) {             // if there's bytes to read from the client,
         char c = client.read();             // read a byte, then
         Serial.write(c);                    // print it out the serial monitor
-        if (c == '\n') {                    // if the byte is a newline character          
+        if (c == '\n') {                    // if the byte is a newline character
 
           // if the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
@@ -67,19 +68,19 @@ void loop(void)
             client.println("</head>");
             client.println("<body>");
 
-            IPAddress ip = WiFi.localIP();
-            String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
+            IPAddressHelper helper = IPAddressHelper(WiFi.localIP());
+            String ipStr = helper.getString();
             //client.println("<div class=\"container\" style=\"width: 100%; max-width: 420px; padding: 15px; margin: 0 auto;\" >");
             client.println("<div class=\"jumbotron\">");
             client.println("<div class=\"container\">");
-            client.println("<h1>server is up</h1>");          
+            client.println("<h1>server is up</h1>");
             client.println("<code class=\"lead\">Server is up and running at "+ipStr+":80 @ \n at Wifi with SSID: "+WiFi.SSID()+"</code>");
             client.println("<br />");
             client.println("<br />");
             client.println("<code class=\"lead\">HTTP Server running at http://"+ipStr+" has served "+visitCounter+" requests during this lifetime</code>");
             client.println("<br />");
             client.println("<br />");
-            client.println("<a class=\"btn btn-primary btn-lg\" href=\".\" role=\"button\">Reload</a>");            
+            client.println("<a class=\"btn btn-primary btn-lg\" href=\".\" role=\"button\">Reload</a>");
             client.println("</div>");
             client.println("</div>");
             client.println("</body>");
@@ -93,7 +94,7 @@ void loop(void)
           }
         } else if (c != '\r') {  // if you got anything else but a carriage return character,
           currentLine += c;      // add it to the end of the currentLine
-        }        
+        }
       }
     }
     // close the connection:
@@ -102,15 +103,15 @@ void loop(void)
   }
 }
 
-void drawScreenWifi(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {  
-  
+void drawScreenWifi(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(ArialMT_Plain_10);
 
   // draw topic
   display->drawString(0 + x, 0 + y, "NET AND DEVICE DATA");
-  
-  // drawing strings to display  
+
+  // drawing strings to display
   display->drawString(0 + x, 10 + y, "ChipID:"+chipid_hex);
 
   // draw ip
@@ -122,15 +123,15 @@ void drawScreenWifi(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, 
   display->drawString(0 + x, 30 + y, "ssid:"+WiFi.SSID());
 
   // draw signal strength
-  long rssi = WiFi.RSSI();  
+  long rssi = WiFi.RSSI();
   display->drawString(0 + x, 40 + y, "rssi:"+String(rssi, DEC)+" dBm");
 }
 
-void drawScreenHttpd(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {  
+void drawScreenHttpd(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
   display->setTextAlignment(TEXT_ALIGN_LEFT);
   display->setFont(ArialMT_Plain_10);
   display->drawString(0 + x, 0 + y, "HTTP SERVER");
-  
+
   // draw ip
   IPAddress ip = WiFi.localIP();
   String ipStr = String(ip[0]) + '.' + String(ip[1]) + '.' + String(ip[2]) + '.' + String(ip[3]);
@@ -166,7 +167,7 @@ void setup() {
   // setup serial com
   Serial.begin(115200);
   delay(10);
-    
+
   // The ESP is capable of rendering 60fps in 80Mhz mode
   // but that won't give you much time for anything else
   // run it in 160Mhz mode or just set it to 30 fps
@@ -197,7 +198,7 @@ void setup() {
   ui.init();
 
   display.flipScreenVertically();
-  
+
   // store chip ID, might come handy one day =)
   chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).;
   uint64_t number;
@@ -220,7 +221,7 @@ void setupWifi(){
   while (WiFi.status() != WL_CONNECTED) {
           delay(500);
           Serial.print(".");
-      } 
+      }
       Serial.println("");
       Serial.print("Connected to ");
       Serial.println(ssid);
