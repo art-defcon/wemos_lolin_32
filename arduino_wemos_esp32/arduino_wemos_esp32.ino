@@ -9,8 +9,8 @@
 #include "OLEDDisplayUi.h"
 #include "IPAddressHelper.h"
 
-const char* ssid = "orchcamp";
-const char* password = "greenskins";
+const char* ssid = "your_ssid";
+const char* password = "your_password";
 int visitCounter = 0;
 
 // TCP server at port 80 will respond to HTTP requests
